@@ -16,26 +16,36 @@ export const routes = [
     path: '/products',
     name: 'AllProductsPage',
     component: AllProductsPage,
-    children: [
-      
-      {
-        path: 'category',
-        name: 'SpecificCategory',
-        component: SpecificCategory,
-      },
-      //  Get products in a specific category
-    ],
+    children: [],
   },
-  { path: '/products/:id', name: 'productPage', component: ProductPage },
-  //  Get a single product
 
   {
+    //  Get products in a specific category
+    path: '/products/category/:query',
+    name: 'SpecificCategory',
+    component: SpecificCategory,
+  },
+
+  {
+    //  Get a single product
+    path: '/products/:id',
+    name: 'productPage',
+    component: ProductPage,
+  },
+
+  {
+    // Get all categories
     path: '/products/categories',
     name: 'AllCategoriesPage',
     component: AllCategoriesPage,
-  }, // Get all categories
+  },
 
-  { path: '/cart', name: 'cart', component: UserBasket },
+  {
+    // user basket page
+    path: '/cart',
+    name: 'cart',
+    component: UserBasket,
+  },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 ];
 

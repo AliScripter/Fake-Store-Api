@@ -1,7 +1,7 @@
 <template>
   <Header />
   
-  <h1>All Products Page ! </h1>
+  <h1 class="text-3xl font-bold mb-3 text-center">All Products Page ! </h1>
 
     <div role="status" v-if="loading">
       <svg
@@ -107,17 +107,17 @@
 import Header from '@/components/sections/header.vue';
 import axios from 'axios';
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+// import { useRouter } from 'vue-router';
 
-// import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';
 
-import mainArr from '../../mainArr.js';
+// import mainArr from '../../mainArr.js';
 
 //
-let allProducts = reactive(mainArr);
+let allProducts = reactive({});
 let loading = ref(true);
 
-/*axios
+axios
   .get(`https://fakestoreapi.com/products`)
   .then(function (res) {
     if (res.status === 200) {
@@ -138,7 +138,7 @@ let loading = ref(true);
     });
   })
   .finally(console.log(`Finally Get All Products`));
-*/
+
 </script>
 <style scoped>
 .container {
@@ -149,7 +149,7 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-align: center;
-  font-size: 72px;
+  /* font-size: 72px; */
   font-weight: bold;
   margin-top: 1rem;
 }

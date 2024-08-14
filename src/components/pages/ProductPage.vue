@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 
 const route = useRoute();
 const id = ref(route.params.id); // استفاده از ref برای پیگیری تغییرات مسیر
-let allProducts = reactive({});
+let mainProduct = reactive({});
 let loading = ref(true);
 
 const fetchProduct = async () => {
@@ -17,7 +17,7 @@ const fetchProduct = async () => {
       `https://fakestoreapi.com/products/${id.value}`
     );
     if (res.status === 200) {
-      allProducts = res.data;
+      mainProduct = res.data;
     }
   } catch (err) {
     console.error(err);
@@ -47,11 +47,11 @@ watch(
 <template>
   <Header />
   <div class="container mt-6 m-auto">
-    <h1 v-if="!loading && allProducts.title" class="text-3xl font-bold mb-3">
-      {{ allProducts.title }}
+    <h1 v-if="!loading && mainProduct.title" class="text-3xl font-bold mb-3">
+      {{ mainProduct.title }}
     </h1>
-    <p v-if="!loading && allProducts.description">
-      {{ allProducts.description }}
+    <p v-if="!loading && mainProduct.description">
+      {{ mainProduct.description }}
     </p>
 
     <div role="status" v-if="loading">
@@ -75,38 +75,34 @@ watch(
 
     <div
       class="products_card my-6 flex items-stretch justify-center flex-wrap gap-8"
-      v-if="!loading && allProducts"
+      v-if="!loading && mainProduct"
     >
       <div
-        class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+        class="max-w-md bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex items-start justify-around"
       >
         <div class="h100">
-          <div>
-            <router-link
-              :to="{ name: 'productPage', params: { id: allProducts.id } }"
-            >
-              <img class="rounded-t-lg" :src="allProducts.image" alt="" />
-            </router-link>
-            <div class="p-5 pb-0">
-              <a href="#">
-                <h5
-                  class="mb-2 text-2xl font-bold tracking-tight text-gray-900 text-left dark:text-white title"
-                >
-                  {{ allProducts.title }}
-                </h5>
-              </a>
+          <div class="flex items-start justify-around START">
+            <img class="rounded-t-lg" :src="mainProduct.image" alt="" />
+
+            <div class="p-5 pb-0 w-1/2">
+              <h5
+                class="mb-2 text-2xl font-bold tracking-tight text-gray-900 text-left dark:text-white title"
+              >
+                {{ mainProduct.title }}
+              </h5>
+
               <p
                 class="font-normal text-gray-700 dark:text-gray-400 description"
               >
-                {{ allProducts.description }}
+                {{ mainProduct.description }}
               </p>
             </div>
           </div>
-          <div class="p-5">
-            <p class="my-3">Price : {{ allProducts.price }} $</p>
+          <div class="p-5 flex flex-col items-center justify-center">
+            <p class="">Price : {{ mainProduct.price }} $</p>
             <div class="stars flex items-center w-min my-1">
               <svg
-                v-for="star in Math.floor(allProducts.rating?.rate || 0)"
+                v-for="star in Math.floor(mainProduct.rating?.rate || 0)"
                 :key="star"
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-6 w-6"
@@ -122,27 +118,11 @@ watch(
                 />
               </svg>
             </div>
-            <router-link
-              :to="{ name: 'productPage', params: { id: allProducts.id } }"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            <span
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer"
             >
-              Show More
-              <svg
-                class="rtl:rotate-180 w-3.5 h-3.5 ms-2"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 14 10"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M1 5h12m0 0L9 1m4 4L9 9"
-                />
-              </svg>
-            </router-link>
+              Add to cart
+            </span>
           </div>
         </div>
       </div>
@@ -155,7 +135,7 @@ watch(
   text-align: justify;
 }
 h1 {
-  background: -webkit-linear-gradient(left, red, blue, white);
+  background: -webkit-linear-gradient(left, red, blue);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -174,21 +154,8 @@ h1 {
   justify-content: space-between;
   height: 100%;
 }
+.START {
+  align-items: start !important ;
+}
 
-/* .title {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-} */
-/* .description {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-} */
 </style>

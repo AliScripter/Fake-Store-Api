@@ -12,11 +12,15 @@
       </div>
       <div class="flex items-center justify-between w-full">
         <router-link :to="{ name: 'home' }">Home</router-link>
-        
-        <router-link :to="{ name: 'AllProductsPage' }">All Products</router-link>
-        
-        <router-link :to="{ name: 'AllCategoriesPage' }">All Categories</router-link>
-        
+
+        <router-link :to="{ name: 'AllProductsPage' }"
+          >All Products</router-link
+        >
+
+        <router-link :to="{ name: 'AllCategoriesPage' }"
+          >All Categories</router-link
+        >
+
         <router-link :to="{ name: 'cart' }">Your Cart</router-link>
       </div>
     </ul>
@@ -29,7 +33,7 @@ let userSearch = ref(``);
 </script>
 
 <style scoped>
-nav{
+nav {
   margin-bottom: 2rem;
   padding-bottom: 12px;
   border-bottom: 1px solid #000;
@@ -45,8 +49,7 @@ input {
   outline: none;
 }
 
-.router-link-exact-active{
+.router-link-active , .router-link-exact-active {
   border-bottom: 2px solid green;
 }
-
 </style>
