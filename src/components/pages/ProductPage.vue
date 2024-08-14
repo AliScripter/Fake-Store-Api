@@ -1,9 +1,58 @@
+<script setup>
+import Header from '@/components/sections/header.vue';
+import axios from 'axios';
+import { reactive, ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import Swal from 'sweetalert2';
+
+const route = useRoute();
+const id = ref(route.params.id); // استفاده از ref برای پیگیری تغییرات مسیر
+let allProducts = reactive({});
+let loading = ref(true);
+
+const fetchProduct = async () => {
+  loading.value = true;
+  try {
+    const res = await axios.get(
+      `https://fakestoreapi.com/products/${id.value}`
+    );
+    if (res.status === 200) {
+      allProducts = res.data;
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      title: 'Error!',
+      text: err.message,
+      icon: 'error',
+      confirmButtonText: 'Try Again Later ',
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(fetchProduct);
+
+// نظارت بر تغییرات id و بارگذاری مجدد داده‌ها
+watch(
+  () => route.params.id,
+  newId => {
+    id.value = newId;
+    fetchProduct();
+  }
+);
+</script>
+
 <template>
-  <h3>--------------------------JUST TEST</h3>
   <Header />
   <div class="container mt-6 m-auto">
-    <h1 class="text-3xl font-bold mb-3">{{ product.value.title }}</h1>
-    <p>{{ product.value.description }}</p>
+    <h1 v-if="!loading && allProducts.title" class="text-3xl font-bold mb-3">
+      {{ allProducts.title }}
+    </h1>
+    <p v-if="!loading && allProducts.description">
+      {{ allProducts.description }}
+    </p>
 
     <div role="status" v-if="loading">
       <svg
@@ -23,34 +72,41 @@
         />
       </svg>
     </div>
-    
+
     <div
       class="products_card my-6 flex items-stretch justify-center flex-wrap gap-8"
+      v-if="!loading && allProducts"
     >
       <div
-        class="max-w-lg bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+        class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
       >
         <div class="h100">
-          <div class="flex items-center justify-around">
-            <img class="rounded-t-lg" :src="product.value.image" alt="" />
-            <div class="p-5 pb-0 w-1/2">
-              <h5
-                class="mb-2 text-2xl font-bold tracking-tight text-gray-900 text-left dark:text-white title"
-              >
-                {{ product.value.title }}
-              </h5>
+          <div>
+            <router-link
+              :to="{ name: 'productPage', params: { id: allProducts.id } }"
+            >
+              <img class="rounded-t-lg" :src="allProducts.image" alt="" />
+            </router-link>
+            <div class="p-5 pb-0">
+              <a href="#">
+                <h5
+                  class="mb-2 text-2xl font-bold tracking-tight text-gray-900 text-left dark:text-white title"
+                >
+                  {{ allProducts.title }}
+                </h5>
+              </a>
               <p
                 class="font-normal text-gray-700 dark:text-gray-400 description"
               >
-                {{ product.value.description }}
+                {{ allProducts.description }}
               </p>
             </div>
           </div>
-          <div class="p-5 flex flex-col items-center justify-center">
-            <p class="my-3">Price : {{ product.value.price }} $</p>
+          <div class="p-5">
+            <p class="my-3">Price : {{ allProducts.price }} $</p>
             <div class="stars flex items-center w-min my-1">
               <svg
-                v-for="star in Math.floor(product.value.rating?.rate || 0)"
+                v-for="star in Math.floor(allProducts.rating?.rate || 0)"
                 :key="star"
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-6 w-6"
@@ -66,52 +122,33 @@
                 />
               </svg>
             </div>
-            <p
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer"
+            <router-link
+              :to="{ name: 'productPage', params: { id: allProducts.id } }"
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              Add To Cart
-            </p>
+              Show More
+              <svg
+                class="rtl:rotate-180 w-3.5 h-3.5 ms-2"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 10"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M1 5h12m0 0L9 1m4 4L9 9"
+                />
+              </svg>
+            </router-link>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<script setup>
-import Header from '@/components/sections/header.vue';
-import axios from 'axios';
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import Swal from 'sweetalert2';
-
-const route = useRoute();
-const id = route.params.id;
-const product = ref({});
-const loading = ref(true);
-
-onMounted(() => {
-  axios
-    .get(`https://fakestoreapi.com/products/${id}`)
-    .then(function (res) {
-      if (res.status === 200) {
-        product.value = res.data;
-        loading.value = false;
-      }
-    })
-    .catch(function (err) {
-      console.error(err);
-      Swal.fire({
-        title: 'Error!',
-        text: err.message,
-        icon: 'error',
-        confirmButtonText: 'Try Again Later',
-      });
-    }).finally(()=> console.log(`FINISH FETCH IN PRODUCT-PAGE.VUE`)
-    )
-});
-</script> 
-
 
 <style scoped>
 .container {

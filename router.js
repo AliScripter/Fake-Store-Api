@@ -12,21 +12,28 @@ import NotFound from '@/components/pages/NotFound.vue';
 export const routes = [
   { path: '/', name: 'home', component: Home },
 
-  { 
-    path: '/products', 
-    name: 'AllProductsPage', 
+  {
+    path: '/products',
+    name: 'AllProductsPage',
     component: AllProductsPage,
     children: [
-      { path: ':id', name: 'productPage', component: ProductPage }, 
-      //  Get a single product
-
-      { path: 'category', name: 'SpecificCategory', component: SpecificCategory }  
-      //  Get products in a specific category
       
-    ]
+      {
+        path: 'category',
+        name: 'SpecificCategory',
+        component: SpecificCategory,
+      },
+      //  Get products in a specific category
+    ],
   },
+  { path: '/products/:id', name: 'productPage', component: ProductPage },
+  //  Get a single product
 
-    { path: '/products/categories', name: 'AllCategoriesPage', component: AllCategoriesPage }, // Get all categories
+  {
+    path: '/products/categories',
+    name: 'AllCategoriesPage',
+    component: AllCategoriesPage,
+  }, // Get all categories
 
   { path: '/cart', name: 'cart', component: UserBasket },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
