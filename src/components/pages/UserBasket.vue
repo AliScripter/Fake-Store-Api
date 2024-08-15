@@ -45,14 +45,21 @@
                 </div>
                 <div class="col-span-12 lg:col-span-10 detail w-full lg:pl-3">
                     <div class="flex items-center justify-between w-full mb-4">
-                        <h5
-                            class="font-manrope font-bold text-2xl leading-9 text-gray-900"
+                        <router-link
+                            :to="{
+                                name: 'productPage',
+                                params: { id: item.id },
+                            }"
+                            class="text-indigo-600"
                         >
-                            {{ item.title }}
-                        </h5>
+                            <h5
+                                class="font-manrope font-bold text-2xl leading-9 text-gray-900 title"
+                            >
+                                {{ item.title }}
+                            </h5>
+                        </router-link>
                         <button
-                            class="rounded-full group flex items-center justify-center focus-within:outline-red-500"
-                            @click="removeItem(index)"
+                            class="rounded-full group flex items-center justify-center focus-within:outline-red-500 cursor-pointer"
                         >
                             <svg
                                 width="34"
@@ -79,12 +86,9 @@
                         </button>
                     </div>
                     <p
-                        class="font-normal text-base leading-7 text-gray-500 mb-6"
+                        class="font-normal text-base leading-7 text-gray-500 mb-6 description"
                     >
                         {{ item.description }}
-                        <a href="javascript:;" class="text-indigo-600"
-                            >More....</a
-                        >
                     </p>
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-4">
@@ -93,6 +97,7 @@
                                 class="group rounded-[50px] border border-gray-200 shadow-sm shadow-transparent p-2.5 flex items-center justify-center bg-white transition-all duration-500 hover:shadow-gray-200 hover:bg-gray-50 hover:border-gray-300 focus-within:outline-gray-300"
                                 @click="decrease(index)"
                             >
+                                <!-- Minus SVG -->
                                 <svg
                                     class="stroke-gray-900 transition-all duration-500 group-hover:stroke-black"
                                     width="18"
@@ -124,6 +129,7 @@
                                 class="group rounded-[50px] border border-gray-200 shadow-sm shadow-transparent p-2.5 flex items-center justify-center bg-white transition-all duration-500 hover:shadow-gray-200 hover:bg-gray-50 hover:border-gray-300 focus-within:outline-gray-300"
                                 @click="increase(index)"
                             >
+                                <!-- Plus SVG -->
                                 <svg
                                     class="stroke-gray-900 transition-all duration-500 group-hover:stroke-black"
                                     width="18"
@@ -154,7 +160,7 @@
                             <span
                                 class="font-manrope font-bold text-xl leading-7 text-gray-900"
                             >
-                                ${{ item.price * item.countOfProduct }}
+                                ${{ item.price }}
                             </span>
                         </div>
                     </div>
@@ -170,15 +176,10 @@
                 </h5>
 
                 <div class="flex items-center justify-between gap-5">
-                    <button
-                        class="rounded-full py-2.5 px-3 bg-indigo-50 text-indigo-600 font-semibold text-xs text-center whitespace-nowrap transition-all duration-500 hover:bg-indigo-100"
-                    >
-                        Promo Code?
-                    </button>
                     <h6
                         class="font-manrope font-bold text-3xl lead-10 text-indigo-600"
                     >
-                        $440
+                        ${{ total }}
                     </h6>
                 </div>
             </div>
@@ -198,73 +199,84 @@
     </section>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            response: [],
-            mainResponse: [],
-            loading: true,
-            total: 0,
-        };
-    },
-    methods: {
-        fetchData() {
-            const fetchArray = this.response.map(element =>
-                fetch(`https://fakestoreapi.com/products/${element.id}`)
-            );
+<script setup>
+import { ref, onMounted } from 'vue';
+import Header from '../sections/header.vue';
 
-            Promise.all(fetchArray)
-                .then(responses =>
-                    Promise.all(responses.map(res => res.json()))
-                )
-                .then(data => {
-                    this.mainResponse = data.map(item => ({
-                        ...item,
-                        countOfProduct: 1,
-                    }));
-                    this.loading = false;
-                    this.updateTotalPrice();
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        },
-        increase(index) {
-            this.mainResponse[index].countOfProduct += 1;
-            this.updateTotalPrice();
-        },
-        decrease(index) {
-            if (this.mainResponse[index].countOfProduct > 1) {
-                this.mainResponse[index].countOfProduct -= 1;
-                this.updateTotalPrice();
-            }
-        },
-        removeItem(index) {
-            this.mainResponse.splice(index, 1);
-            this.updateTotalPrice();
-        },
-        updateTotalPrice() {
-            this.total = this.mainResponse.reduce(
-                (acc, item) => acc + item.price * item.countOfProduct,
-                0
-            );
-        },
-    },
-    mounted() {
-        this.response = [
-            { id: 1 },
-            { id: 2 },
-            { id: 3 },
-            { id: 4 },
-            { id: 5 },
-            { id: 6 },
-        ];
-        this.fetchData();
-    },
+const response = ref([]);
+const mainResponse = ref([]);
+const loading = ref(true);
+const total = ref(0);
+
+const fetchData = () => {
+    const fetchArray = response.value.map(element =>
+        fetch(`https://fakestoreapi.com/products/${element.id}`)
+    );
+
+    Promise.all(fetchArray)
+        .then(responses => Promise.all(responses.map(res => res.json())))
+        .then(data => {
+            mainResponse.value = data.map(item => ({
+                ...item,
+                countOfProduct: 1,
+            }));
+            loading.value = false;
+            updateTotalPrice();
+        })
+        .catch(error => console.error('Error fetching data:', error));
 };
+
+const increase = index => {
+    if (mainResponse.value[index].countOfProduct < 9) {
+        mainResponse.value[index].countOfProduct += 1;
+        updateTotalPrice();
+    }
+};
+
+const decrease = index => {
+    if (mainResponse.value[index].countOfProduct > 1) {
+        mainResponse.value[index].countOfProduct -= 1;
+        updateTotalPrice();
+    }
+};
+
+const removeItem = index => {
+    mainResponse.value.splice(index, 1);
+    updateTotalPrice();
+};
+
+const updateTotalPrice = () => {
+    total.value = mainResponse.value.reduce(
+        (acc, item) => acc + item.price * item.countOfProduct,
+        0
+    );
+};
+
+onMounted(() => {
+    response.value = [
+        { id: 1 },
+        { id: 2 },
+        { id: 3 },
+        { id: 4 },
+        { id: 5 },
+        { id: 6 },
+    ];
+    fetchData();
+});
 </script>
 
 <style scoped>
-input {
+.title,
+.description {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rounded-3xl input {
     width: 80px;
     height: 50px;
     text-align: center;

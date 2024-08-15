@@ -35,9 +35,9 @@ const fetchProduct = async () => {
 // for add data in localstorage
 function setInfo() {
     let productsToCard =
-        JSON.parse(localStorage.getItem(`fake_products`)) || [];
+        JSON.parse(localStorage.getItem(`cartItems`)) || [];
     productsToCard.push(id.value);
-    localStorage.setItem(`fake_products`, JSON.stringify(productsToCard));
+    localStorage.setItem(`cartItems`, JSON.stringify(productsToCard));
 }
 
 onMounted(fetchProduct);
