@@ -1,5 +1,10 @@
+
+
+---------
 <template>
     <Header />
+    <!-- <h1 class="text-3xl font-bold mb-3 text-center">User Basket !</h1> -->
+
     <h1
         class="title font-manrope font-bold text-3xl leading-10 mb-8 text-center text-black"
     >
@@ -28,9 +33,9 @@
     <section class="py-24 relative">
         <div class="w-full max-w-7xl px-4 md:px-5 lg-6 mx-auto">
             <div
-                v-if="mainResponse.length > 0"
+                v-if="mainResponse"
                 v-for="(item, index) in mainResponse"
-                :key="item.id"
+                :key="index"
                 class="rounded-3xl border-2 border-gray-200 p-4 lg:p-8 grid grid-cols-12 mb-8 max-lg:max-w-lg max-lg:mx-auto gap-y-4"
             >
                 <div class="col-span-12 lg:col-span-2 img box">
@@ -52,7 +57,6 @@
                         </h5>
                         <button
                             class="rounded-full group flex items-center justify-center focus-within:outline-red-500"
-                            @click="removeItem(index)"
                         >
                             <svg
                                 width="34"
@@ -88,10 +92,10 @@
                     </p>
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-4">
-                            <!-- Decrease Button -->
+                            <!-- !----------- DECRESE BTN -->
                             <button
                                 class="group rounded-[50px] border border-gray-200 shadow-sm shadow-transparent p-2.5 flex items-center justify-center bg-white transition-all duration-500 hover:shadow-gray-200 hover:bg-gray-50 hover:border-gray-300 focus-within:outline-gray-300"
-                                @click="decrease(index)"
+                                @click="decrease($event)"
                             >
                                 <svg
                                     class="stroke-gray-900 transition-all duration-500 group-hover:stroke-black"
@@ -104,25 +108,25 @@
                                     <path
                                         d="M4.5 9.5H13.5"
                                         stroke=""
-                                        stroke-width="2"
+                                        stroke-width="1.6"
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                     />
                                 </svg>
                             </button>
-
-                            <!-- Quantity Input -->
                             <input
-                                type="number"
-                                :value="item.countOfProduct"
-                                class="border border-gray-200 rounded-full w-16 h-auto aspect-square outline-none text-gray-900 font-semibold text-sm py-1.5 px-3 bg-gray-100 text-center"
-                                readonly
+                                max="10"
+                                min="1"
+                                type="text"
+                                id="number"
+                                class="border border-gray-200 rounded-full w-10 aspect-square outline-none text-gray-900 font-semibold text-sm py-1.5 px-3 bg-gray-100 text-center"
+                                value="1"
                             />
 
-                            <!-- Increase Button -->
+                            <!-- !----------- INCRESE BTN -->
                             <button
                                 class="group rounded-[50px] border border-gray-200 shadow-sm shadow-transparent p-2.5 flex items-center justify-center bg-white transition-all duration-500 hover:shadow-gray-200 hover:bg-gray-50 hover:border-gray-300 focus-within:outline-gray-300"
-                                @click="increase(index)"
+                                @click="increase($event)"
                             >
                                 <svg
                                     class="stroke-gray-900 transition-all duration-500 group-hover:stroke-black"
@@ -133,33 +137,24 @@
                                     xmlns="http://www.w3.org/2000/svg"
                                 >
                                     <path
-                                        d="M9 4.5V14.5"
+                                        d="M3.75 9.5H14.25M9 14.75V4.25"
                                         stroke=""
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    />
-                                    <path
-                                        d="M4.5 9.5H13.5"
-                                        stroke=""
-                                        stroke-width="2"
+                                        stroke-width="1.6"
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                     />
                                 </svg>
                             </button>
                         </div>
-                        <!-- Item Price -->
-                        <div class="total-quantity">
-                            <span
-                                class="font-manrope font-bold text-xl leading-7 text-gray-900"
-                            >
-                                ${{ item.price * item.countOfProduct }}
-                            </span>
-                        </div>
+                        <h6
+                            class="text-indigo-600 font-manrope font-bold text-2xl leading-9 text-right"
+                        >
+                            ${{ item.price }}
+                        </h6>
                     </div>
                 </div>
             </div>
+
             <div
                 class="flex flex-col md:flex-row items-center md:items-center justify-between lg:px-6 pb-6 border-b border-gray-200 max-lg:max-w-lg max-lg:mx-auto"
             >
@@ -198,76 +193,71 @@
     </section>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            response: [],
-            mainResponse: [],
-            loading: true,
-            total: 0,
-        };
-    },
-    methods: {
-        fetchData() {
-            const fetchArray = this.response.map(element =>
-                fetch(`https://fakestoreapi.com/products/${element.id}`)
-            );
+<script setup>
+import Header from '@/components/sections/header.vue';
+import { reactive, ref } from 'vue';
+import Swal from 'sweetalert2';
 
-            Promise.all(fetchArray)
-                .then(responses =>
-                    Promise.all(responses.map(res => res.json()))
-                )
-                .then(data => {
-                    this.mainResponse = data.map(item => ({
-                        ...item,
-                        countOfProduct: 1,
-                    }));
-                    this.loading = false;
-                    this.updateTotalPrice();
+let mainResponse = reactive([]);
+let countOfProduct = ref(1);
+let loading = ref(true);
+// let usr = `https://fakestoreapi.com/products`;
+
+function getInfo() {
+    let productsInCard =
+        JSON.parse(localStorage.getItem(`fake_products`)) || null;
+
+    if (
+        productsInCard &&
+        productsInCard.length > 0 &&
+        productsInCard.every(item => item.trim() !== '')
+    ) {
+        productsInCard.map(id => {
+            fetch(`https://fakestoreapi.com/products/${Number(id)}`)
+                .then(res => {
+                    if (res.status === 200) {
+                        res.json().then(data => mainResponse.push(data));
+                    }
                 })
-                .catch(error => console.error('Error fetching data:', error));
-        },
-        increase(index) {
-            this.mainResponse[index].countOfProduct += 1;
-            this.updateTotalPrice();
-        },
-        decrease(index) {
-            if (this.mainResponse[index].countOfProduct > 1) {
-                this.mainResponse[index].countOfProduct -= 1;
-                this.updateTotalPrice();
-            }
-        },
-        removeItem(index) {
-            this.mainResponse.splice(index, 1);
-            this.updateTotalPrice();
-        },
-        updateTotalPrice() {
-            this.total = this.mainResponse.reduce(
-                (acc, item) => acc + item.price * item.countOfProduct,
-                0
-            );
-        },
-    },
-    mounted() {
-        this.response = [
-            { id: 1 },
-            { id: 2 },
-            { id: 3 },
-            { id: 4 },
-            { id: 5 },
-            { id: 6 },
-        ];
-        this.fetchData();
-    },
-};
+                .catch(err => {
+                    // console.error(err);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: err.message,
+                        icon: 'error',
+                        confirmButtonText: 'Try Again Later ',
+                    });
+                })
+                .finally(() => {
+                    console.log(`End Fetch in userbasket.vue`);
+                    loading.value = false;
+                });
+        });
+    } else {
+        console.log(`empity`);
+    }
+}
+getInfo();
+
+function increase(e) {
+    if (e.target.previousElementSibling.value < 10) {
+        e.target.previousElementSibling.value++;
+    }
+}
+
+function decrease(item) {
+    if (item.count > 1) {
+        item.count--;
+    }
+}
+
+// console.log(item[index].title);
 </script>
 
 <style scoped>
-input {
-    width: 80px;
-    height: 50px;
-    text-align: center;
-    padding-left: 26px;
+h1 {
+    background: -webkit-linear-gradient(left, red, blue);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 </style>

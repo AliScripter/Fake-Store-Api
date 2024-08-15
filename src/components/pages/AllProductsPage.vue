@@ -123,8 +123,7 @@ axios
     if (res.status === 200) {
       allProducts = res.data;
       loading.value = false;
-      console.clear();
-      console.log(allProducts);
+     
     }
   })
   .catch(function (err) {
