@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
 
 const route = useRoute();
-const id = ref(route.params.id); // استفاده از ref برای پیگیری تغییرات مسیر
+const id = ref(route.params.id); 
 let mainProduct = reactive({});
 let loading = ref(true);
 

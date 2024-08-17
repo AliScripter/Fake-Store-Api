@@ -6,6 +6,10 @@
     Shopping Cart
   </h1>
 
+  <h2 v-if="empty" class="font-manrope font-bold text-center text-black">
+    Your shopping cart is empty
+  </h2>
+
   <div role="status" v-if="loading">
     <svg
       aria-hidden="true"
@@ -26,7 +30,7 @@
   </div>
 
   <!--! Start cart --------->
-  <section class="py-24 relative">
+  <section class="py-24 relative" v-if="!empty">
     <div class="w-full max-w-7xl px-4 md:px-5 lg-6 mx-auto">
       <div
         v-if="mainResponse.length > 0"
@@ -191,6 +195,7 @@
         </p>
         <button
           class="rounded-full py-4 px-6 bg-indigo-600 text-white font-semibold text-lg w-full text-center transition-all duration-500 hover:bg-indigo-700"
+          @click="checkoutFn"
         >
           Checkout
         </button>
@@ -208,30 +213,37 @@ const response = ref([]);
 const mainResponse = ref([]);
 const loading = ref(true);
 const total = ref(0);
+const empty = ref(false);
 
 const fetchData = () => {
-  const fetchArray = response.value.map(element =>
-    fetch(`https://fakestoreapi.com/products/${Number(element)}`)
-  );
+  if (response.value && response.value.length > 0) {
+    const fetchArray = response.value.map(element =>
+      fetch(`https://fakestoreapi.com/products/${Number(element)}`)
+    );
 
-  Promise.all(fetchArray)
-    .then(responses => Promise.all(responses.map(res => res.json())))
-    .then(data => {
-      mainResponse.value = data.map(item => ({
-        ...item,
-        countOfProduct: 1,
-      }));
-      loading.value = false;
-      updateTotalPrice();
-    })
-    .catch(error => {
-      Swal.fire({
-        title: `Error!`,
-        text: error.message,
-        icon: `error`,
-        confirmButtonText: 'Try Again Later ',
+    Promise.all(fetchArray)
+      .then(responses => Promise.all(responses.map(res => res.json())))
+      .then(data => {
+        mainResponse.value = data.map(item => ({
+          ...item,
+          countOfProduct: 1,
+        }));
+
+        loading.value = false;
+        updateTotalPrice();
+      })
+      .catch(error => {
+        Swal.fire({
+          title: `Error!`,
+          text: error.message,
+          icon: `error`,
+          confirmButtonText: 'Try Again Later ',
+        });
       });
-    });
+  } else {
+    empty.value = true;
+    loading.value = false;
+  }
 };
 
 const increase = index => {
@@ -250,12 +262,15 @@ const decrease = index => {
 
 const removeItem = index => {
   let products = JSON.parse(localStorage.getItem(`cartItems`));
-  console.log(products);
 
   products.splice(index, 1);
   mainResponse.value.splice(index, 1);
+
+  if (mainResponse.value.length === 0) {
+    empty.value = true;
+  }
+
   localStorage.setItem(`cartItems`, JSON.stringify(products));
-  console.log(products);
 
   updateTotalPrice();
 };
@@ -265,6 +280,18 @@ const updateTotalPrice = () => {
     .reduce((acc, item) => acc + item.price * item.countOfProduct, 0)
     .toFixed(2);
 };
+
+function checkoutFn() {
+  localStorage.removeItem(`cartItems`);
+  mainResponse.value = ``;
+  Swal.fire({
+      title: 'Thanks',
+      text: `اعتماد شما اعتبار ماست`,
+      icon: 'success',
+      confirmButtonText: 'ok',
+    });
+  empty.value = true;
+}
 
 onMounted(() => {
   response.value = JSON.parse(localStorage.getItem(`cartItems`));

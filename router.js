@@ -16,7 +16,7 @@ export const routes = [
     path: '/products',
     name: 'AllProductsPage',
     component: AllProductsPage,
-    children: [],
+    
   },
 
   {

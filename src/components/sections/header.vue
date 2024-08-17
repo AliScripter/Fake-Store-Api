@@ -5,8 +5,9 @@
         <img src="@/assets/logo.svg" alt="logo" />
         <input
           type="text"
-          v-model="userSearch"
-          placeholder="search..."
+          v-model.trim.number="userSearch"
+          @keydown.enter="changeRoute"
+          placeholder="Search by Id ( 1 ~ 20 )"
           class="text-slate-500"
         />
       </div>
@@ -29,7 +30,21 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
 let userSearch = ref(``);
+const route = useRouter();
+
+function changeRoute() {
+  if (userSearch.value <= 20 && userSearch.value > 0) {
+    route.push({
+      name: `productPage`,
+      params: { id: Math.round(userSearch.value) },
+    });
+  } else {
+    route.push({ name: `NotFound` });
+  }
+}
 </script>
 
 <style scoped>
@@ -49,7 +64,8 @@ input {
   outline: none;
 }
 
-.router-link-active , .router-link-exact-active {
+.router-link-active,
+.router-link-exact-active {
   border-bottom: 2px solid green;
 }
 </style>

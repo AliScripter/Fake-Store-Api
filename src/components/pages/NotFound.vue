@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <div>
     <h1>! گشتیم نبود نگرد نیست</h1>
 
@@ -7,8 +8,8 @@
     <router-view></router-view>
   </div>
 </template>
-<script>
-export default {};
+<script setup>
+import Header from '@/components/sections/header.vue';
 </script>
 <style scoped>
 h1 {
