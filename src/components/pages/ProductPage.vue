@@ -58,7 +58,7 @@ function setInfo() {
 
 onMounted(fetchProduct);
 
-// نظارت بر تغییرات id و بارگذاری مجدد داده‌ها
+
 watch(
   () => route.params.id,
   newId => {
@@ -173,7 +173,7 @@ h1 {
   max-width: 100%;
   height: 300px;
   object-fit: inherit;
-  /* object-position: center; */
+  
 }
 .h100 {
   display: flex;

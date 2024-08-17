@@ -107,13 +107,13 @@
 import Header from '@/components/sections/header.vue';
 import axios from 'axios';
 import { reactive, ref } from 'vue';
-// import { useRouter } from 'vue-router';
+
 
 import Swal from 'sweetalert2';
 
-// import mainArr from '../../mainArr.js';
 
-//
+
+
 let allProducts = reactive({});
 let loading = ref(true);
 

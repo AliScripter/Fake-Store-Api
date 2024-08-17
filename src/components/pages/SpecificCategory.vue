@@ -108,7 +108,7 @@ import Swal from 'sweetalert2';
 const route = useRoute();
 const query = ref(route.params.query);
 const loading = ref(true);
-const mainProduct = reactive([]); // تغییر به آرایه خالی
+const mainProduct = reactive([]); 
 
 const fetchProduct = async () => {
   loading.value = true;
@@ -119,7 +119,7 @@ const fetchProduct = async () => {
     );
 
     if (res.status === 200) {
-      mainProduct.splice(0, mainProduct.length, ...res.data); // استفاده از splice برای حفظ واکنش‌پذیری
+      mainProduct.splice(0, mainProduct.length, ...res.data);
     }
   } catch (error) {
     console.error(error);
@@ -133,14 +133,14 @@ const fetchProduct = async () => {
     loading.value = false;
     console.log(
       `FINISH FETCH IN SpecificCategory.vue`,
-      `https://fakestoreapi.com/products/category/${query.value}`
+      
     );
   }
 };
 
 onMounted(fetchProduct);
 
-// نظارت بر تغییرات id و بارگذاری مجدد داده‌ها
+
 watch(
   () => route.params.query,
   newQuery => {
@@ -166,7 +166,7 @@ h1 {
   max-width: 100%;
   height: 300px;
   object-fit: inherit;
-  /* object-position: center; */
+  
 }
 .h100 {
   display: flex;
